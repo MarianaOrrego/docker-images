@@ -27,6 +27,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
           push: true
           tags: mfxn3/java-template-tester:${{ env.IMAGE_VERSION }}
+
