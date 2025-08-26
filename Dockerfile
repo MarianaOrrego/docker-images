@@ -21,7 +21,7 @@ USER kaizen-tester
 WORKDIR /workspace
 
 # Copia de scripts
-COPY --chown=kaizen-tester:kaizen-tester java-template-tester/java-template-test.sh /workspace/java-template-test.sh
+COPY --chown=kaizen-tester:kaizen-tester src/java-template-tester/java-template-test.sh /workspace/java-template-test.sh
 RUN chmod +x /workspace/java-template-test.sh
 
 # Variables de entorno para Kaizen en AWS

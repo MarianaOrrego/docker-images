@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    paths:
+      - src/**
+    branches:
+      - master
+
+jobs:
+  docker:
+    runs-on: self-hosted
+    steps:
+      -
+        name: Set tag for dockerhub version
+        shell: bash
+        run: |
+          echo "IMAGE_VERSION=$(date +'%y%d%d-%H%M')" >> "$GITHUB_ENV"
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: johnyunez/python-api-app:${{ env.IMAGE_VERSION }}
