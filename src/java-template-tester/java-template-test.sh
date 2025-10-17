@@ -48,18 +48,19 @@ mkdir -p "$PROJECT_NAME"
 cd "$PROJECT_NAME"
 
 echo "🏗️ === PASO 1: Configurar Gradle con Plugin Clean Architecture ==="
-echo "� Creando build.gradle..."
+echo "📝 Creando build.gradle..."
 cat > build.gradle << 'EOF'
 plugins {
     id "co.com.bancolombia.cleanArchitecture" version "3.23.0"
 }
 EOF
 
-echo "� Creando settings.gradle..."
+echo "📝 Creando settings.gradle..."
 cat > settings.gradle << 'EOF'
 pluginManagement {
-    repositories{
-        maven { url "https://artifactory.apps.bancolombia.com:443/maven-bancolombia/" }
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
     }
 }
 EOF
@@ -103,25 +104,20 @@ echo "      --javaVersion=$JAVA_VERSION"
 echo "   ✅ Scaffolding completado"
 echo ""
 
-echo "🏗️ === PASO 4: Configurar Repositorios Bancolombia ==="
-echo "� Actualizando main.gradle para usar Artifactory..."
+echo "🏗️ === PASO 4: Configurar Repositorios Públicos ==="
+echo "📝 Actualizando main.gradle para usar Maven Central..."
 if [ -f main.gradle ]; then
-    sed -i -e '/mavenLocal()/d' \
-        -e '/maven { url/d' \
-        -e 's/mavenCentral()/maven { url "https:\/\/artifactory.apps.bancolombia.com\/maven-bancolombia" }/g' \
-        main.gradle
-    echo "   ✅ main.gradle actualizado"
+    # No modificar - dejar mavenCentral() como está
+    echo "   ✅ main.gradle usa repositorios públicos por defecto"
 else
     echo "   ⚠️ main.gradle no encontrado (puede ser normal)"
 fi
 
-echo "🔧 Actualizando settings.gradle para usar Artifactory..."
+echo "🔧 Actualizando settings.gradle..."
 if [ -f settings.gradle ]; then
-    sed -i -e '/\/\/mavenLocal()/d' \
-        -e '/\/\/maven { url/d' \
-        -e 's/gradlePluginPortal()/maven { url "https:\/\/artifactory.apps.bancolombia.com\/maven-bancolombia" }/g' \
-        settings.gradle
-    echo "   ✅ settings.gradle actualizado"
+    # Asegurar que usa repositorios públicos
+    sed -i 's/\/\/mavenCentral()/mavenCentral()/g' settings.gradle 2>/dev/null || true
+    echo "   ✅ settings.gradle configurado"
 fi
 echo ""
 
