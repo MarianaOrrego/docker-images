@@ -68,12 +68,13 @@ echo "   ✅ Archivos de configuración creados"
 echo ""
 
 echo "🏗️ === PASO 2: Inicializar Gradle Wrapper ==="
-if [ -n "${GRADLE_HOME:-}" ]; then
+# Detectar Gradle automáticamente
+if command -v gradle &> /dev/null; then
     echo "🔧 Ejecutando: gradle wrapper --gradle-version 8.8"
-    gradle wrapper --gradle-version 8.8 -Dorg.gradle.java.home="$JAVA_HOME"
+    gradle wrapper --gradle-version 8.8
     echo "   ✅ Gradle wrapper inicializado"
 else
-    echo "   ❌ ERROR: GRADLE_HOME no está configurado"
+    echo "   ❌ ERROR: Gradle no está disponible en el PATH"
     echo "failed" > "$RESULTS_DIR/scaffold_status"
     exit 1
 fi
@@ -97,8 +98,7 @@ echo "      --javaVersion=$JAVA_VERSION"
     --lombok="$LOMBOK" \
     --metrics="$METRICS" \
     --mutation="$MUTATION" \
-    --javaVersion="$JAVA_VERSION" \
-    -Dorg.gradle.java.home="$JAVA_HOME"
+    --javaVersion="$JAVA_VERSION"
 
 echo "   ✅ Scaffolding completado"
 echo ""
@@ -131,7 +131,7 @@ if [ -n "${MODELS:-}" ]; then
     IFS=',' read -ra MODEL_ARRAY <<< "$MODELS"
     for model in "${MODEL_ARRAY[@]}"; do
         echo "📦 Generando modelo: $model"
-        ./gradlew gm --name "$model" -Dorg.gradle.java.home="$JAVA_HOME"
+        ./gradlew gm --name "$model"
         echo "   ✅ Modelo $model generado"
     done
     echo ""
@@ -143,7 +143,7 @@ if [ -n "${USE_CASES:-}" ]; then
     IFS=',' read -ra UC_ARRAY <<< "$USE_CASES"
     for uc in "${UC_ARRAY[@]}"; do
         echo "🎯 Generando caso de uso: $uc"
-        ./gradlew guc --name "$uc" -Dorg.gradle.java.home="$JAVA_HOME"
+        ./gradlew guc --name "$uc"
         echo "   ✅ Caso de uso $uc generado"
     done
     echo ""
@@ -163,7 +163,7 @@ if [ -n "${ENTRY_POINTS:-}" ]; then
             params="$params --$key=$value"
         done
         
-        ./gradlew gep --type "$nameep" $params -Dorg.gradle.java.home="$JAVA_HOME"
+        ./gradlew gep --type "$nameep" $params
         echo "   ✅ Entry point $nameep generado"
     done
     echo ""
@@ -183,7 +183,7 @@ if [ -n "${DRIVEN_ADAPTERS:-}" ]; then
             params="$params --$key=$value"
         done
         
-        ./gradlew gda --type "$nameda" $params -Dorg.gradle.java.home="$JAVA_HOME"
+        ./gradlew gda --type "$nameda" $params
         echo "   ✅ Driven adapter $nameda generado"
     done
     echo ""
@@ -208,7 +208,7 @@ echo ""
 
 echo "🏗️ === PASO 10: Actualizar Proyecto ==="
 echo "🔄 Ejecutando: ./gradlew u"
-./gradlew u -Dorg.gradle.java.home="$JAVA_HOME" || echo "   ⚠️ Update task no disponible (puede ser normal)"
+./gradlew u || echo "   ⚠️ Update task no disponible (puede ser normal)"
 echo ""
 
 echo "🏗️ === PASO 11: Validar Estructura Generada ==="
