@@ -24,13 +24,13 @@ COPY --from=assets /assets /assets
 USER root
 
 # Crear directorios de trabajo con permisos correctos
-RUN mkdir -p /workspace /app/results && \
-    chown -R gradle:gradle /workspace /app /assets
+RUN mkdir -p /workspace /app/results /opt/kaizen && \
+    chown -R gradle:gradle /workspace /app /assets /opt/kaizen
 
-# Copiar script de scaffolding
-COPY src/java-template-tester/java-template-test.sh /workspace/java-template-test.sh
-RUN chmod +x /workspace/java-template-test.sh && \
-    chown gradle:gradle /workspace/java-template-test.sh
+# Copiar script de scaffolding a /opt/kaizen (NO a /workspace porque se monta un volumen ahí)
+COPY src/java-template-tester/java-template-test.sh /opt/kaizen/java-template-test.sh
+RUN chmod +x /opt/kaizen/java-template-test.sh && \
+    chown gradle:gradle /opt/kaizen/java-template-test.sh
 
 # Cambiar a usuario no-root (gradle ya existe en la imagen con UID 1000)
 USER gradle
@@ -65,4 +65,4 @@ LABEL maintainer="Kaizen Team - Bancolombia IDP" \
       plugin-version="3.23.0" \
       environment="production"
 
-ENTRYPOINT ["/bin/bash", "/workspace/java-template-test.sh"]
+ENTRYPOINT ["/bin/bash", "/opt/kaizen/java-template-test.sh"]
