@@ -1,70 +1,40 @@
-# ═══════════════════════════════════════════════════════════════
-# KAIZEN - BANCOLOMBIA INTERNAL DEVELOPER PORTAL
-# Java Clean Architecture Scaffolding Image
-# ═══════════════════════════════════════════════════════════════
-
-# Stage 1: Assets - Contiene los archivos de configuración de Bancolombia
+# Stage 1: Assets
 FROM alpine:latest AS assets
 COPY assets/ /assets/
 
-# Stage 2: Builder - Imagen principal con Gradle y Java
+# Stage 2: Builder
 FROM gradle:8.10-jdk21 AS builder
 
-# Instalar dependencias del sistema necesarias para scaffolding
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     jq \
     curl \
     git \
-    unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar assets de Bancolombia desde el stage anterior
+# Copiar assets de Bancolombia
 COPY --from=assets /assets /assets
 
-# Configuración de usuario no-root (compliance Bancolombia)
-RUN groupadd -g 2000 appgroup && \
-    useradd -u 1000 -g appgroup -m -s /bin/bash appuser
+# Usar el usuario gradle que ya viene en la imagen (UID 1000)
+# En lugar de crear uno nuevo
+USER root
 
 # Crear directorios de trabajo
 RUN mkdir -p /workspace /app/results && \
-    chown -R appuser:appgroup /workspace /app
+    chown -R gradle:gradle /workspace /app /assets
 
 # Copiar script de scaffolding
-COPY src/java-template-tester/java-template-test.sh /workspace/java-template-test.sh
+COPY src/java-template-tester/java-template-test.sh /workspace/
 RUN chmod +x /workspace/java-template-test.sh && \
-    chown appuser:appgroup /workspace/java-template-test.sh
+    chown gradle:gradle /workspace/java-template-test.sh
 
-# Cambiar a usuario no-root
-USER appuser
+# Cambiar a usuario no-root (gradle ya existe en la imagen)
+USER gradle
 WORKDIR /workspace
 
 # Variables de entorno
 ENV JAVA_HOME=/opt/java/openjdk
 ENV GRADLE_HOME=/opt/gradle
 ENV PATH=$JAVA_HOME/bin:$GRADLE_HOME/bin:$PATH
-ENV WORKSPACE_DIR=/workspace
-ENV RESULTS_DIR=/app/results
-
-# Variables por defecto para scaffolding
-ENV PROJECT_NAME=demo-app
-ENV PACKAGE=com.bancolombia
-ENV TYPE=reactive
-ENV LOMBOK=true
-ENV METRICS=true
-ENV MUTATION=true
-ENV JAVA_VERSION=VERSION_21
-
-# Health check para Kubernetes
-HEALTHCHECK --interval=30s --timeout=10s --start-period=120s \
-    CMD test -f "$RESULTS_DIR/scaffold_status" || exit 1
-
-# Labels para identificación en Kaizen
-LABEL maintainer="Kaizen Team - Bancolombia IDP" \
-      purpose="Java Clean Architecture Scaffolding" \
-      template-type="java-clean-architecture" \
-      gradle-version="8.10" \
-      java-version="21" \
-      plugin-version="3.23.0" \
-      environment="production"
 
 ENTRYPOINT ["/workspace/java-template-test.sh"]
