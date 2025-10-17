@@ -65,4 +65,4 @@ LABEL maintainer="Kaizen Team - Bancolombia IDP" \
       plugin-version="3.23.0" \
       environment="production"
 
-ENTRYPOINT ["/workspace/java-template-test.sh"]
+ENTRYPOINT ["/bin/bash", "/workspace/java-template-test.sh"]
