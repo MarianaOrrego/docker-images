@@ -1,103 +1,273 @@
 #!/bin/bash
 set -euo pipefail
 
-# Banner de Kaizen
+# Variables de entorno requeridas
+PROJECT_NAME="${PROJECT_NAME:-demo-app}"
+PACKAGE="${PACKAGE:-com.bancolombia}"
+TYPE="${TYPE:-reactive}"
+LOMBOK="${LOMBOK:-true}"
+METRICS="${METRICS:-true}"
+MUTATION="${MUTATION:-true}"
+JAVA_VERSION="${JAVA_VERSION:-VERSION_21}"
+
+WORKSPACE_DIR="${WORKSPACE_DIR:-/workspace}"
+RESULTS_DIR="${RESULTS_DIR:-/app/results}"
+mkdir -p "$RESULTS_DIR"
+
 echo "🎌 ═══════════════════════════════════════════════════════════════"
 echo "🎌  KAIZEN - BANCOLOMBIA INTERNAL DEVELOPER PORTAL"
-echo "🎌  Java Clean Architecture Template Testing"
+echo "🎌  Java Clean Architecture Scaffold (REAL)"
 echo "🎌 ═══════════════════════════════════════════════════════════════"
+echo "🏢 Ejecutando scaffolding REAL con plugin de Bancolombia"
 echo ""
 
-# Configuración del test
-TEST_ID="${TEST_ID:-$(date +%s)}"
-PROJECT_NAME="kaizen-java-test-${TEST_ID}"
-RESULTS_DIR="${WORKSPACE_DIR}/results"
-USER_EMAIL="${USER_EMAIL:-kaizen-system}"
-REAL_VALIDATION="${REAL_VALIDATION:-true}"
-
-echo "📋 === INFORMACIÓN DEL TEST ==="
-echo "🆔 Test ID: $TEST_ID"
+echo "📋 === CONFIGURACIÓN DEL PROYECTO ==="
 echo "📦 Project Name: $PROJECT_NAME"
-echo "👤 User: $USER_EMAIL"
-echo "🌍 AWS Region: ${AWS_REGION:-us-east-2}"
-echo "📁 Workspace: $WORKSPACE_DIR"
-echo "📊 Results Dir: $RESULTS_DIR"
-echo "🔧 Real Validation: $REAL_VALIDATION"
-echo "⏰ Started: $(date)"
+echo "📦 Package: $PACKAGE"
+echo "� Type: $TYPE"
+echo "📦 Java Version: $JAVA_VERSION"
+echo "� Lombok: $LOMBOK"
+echo "� Metrics: $METRICS"
+echo "� Mutation: $MUTATION"
 echo ""
 
 echo "🖥️ === ENTORNO DE EJECUCIÓN ==="
-# Verificar si hostname está disponible antes de usarlo
-if command -v hostname &> /dev/null; then
-    echo "🏠 Hostname: $(hostname)"
-else
-    echo "🏠 Hostname: kaizen-container-$(echo $RANDOM)"
-fi
 echo "👥 User: $(whoami)"
 echo "📂 PWD: $(pwd)"
 echo "💾 Java Version: $(java -version 2>&1 | head -1)"
-echo "💿 Disk: $(df -h / | tail -1 | awk '{print $2 " total, " $3 " used, " $4 " available"}')"
+if [ -n "${GRADLE_HOME:-}" ]; then
+    echo "🔧 Gradle Home: $GRADLE_HOME"
+else
+    echo "⚠️ GRADLE_HOME no está configurado"
+fi
 echo ""
 
-# Inicializar workspace
-mkdir -p "$RESULTS_DIR"
-echo "initialized" > "$RESULTS_DIR/status"
+# Crear directorio del proyecto
+cd "$WORKSPACE_DIR"
+mkdir -p "$PROJECT_NAME"
+cd "$PROJECT_NAME"
 
-echo "🏗️ === KAIZEN SOFTWARE TEMPLATE WORKFLOW ==="
-
-# Paso 1: Simulación de descarga de scaffold (SIMULADO por seguridad)
-echo "📥 1. [SIMULADO] Descargando Java Clean Architecture scaffold desde Kaizen..."
-sleep 2
-echo "   ✅ Scaffold script obtenido del Kaizen template catalog"
-echo "   📍 Template Source: backstage://kaizen/templates/java-clean-architecture"
-echo "success" > "$RESULTS_DIR/scaffold_download"
-
-# Paso 2: Generación REAL de proyecto
-echo "🏗️ 2. [REAL] Generando proyecto Java Clean Architecture..."
-mkdir -p "$WORKSPACE_DIR/$PROJECT_NAME"
-cd "$WORKSPACE_DIR/$PROJECT_NAME"
-
-# CORRECCIÓN: Crear estructura REAL de Clean Architecture paso a paso
-echo "📁 Creando estructura REAL de Clean Architecture..."
-
-# Crear directorios principales
-mkdir -p src/main/java/com/bancolombia/model
-mkdir -p src/main/java/com/bancolombia/usecase
-mkdir -p src/main/java/com/bancolombia/infrastructure/entrypoint
-mkdir -p src/main/java/com/bancolombia/infrastructure/gateway
-
-# CRÍTICO: Crear directorios de test EXPLÍCITAMENTE
-mkdir -p src/test/java/com/bancolombia
-
-echo "   📂 Directorios creados:"
-find src -type d | sort | sed 's/^/      /'
-
-# Generar archivos REALES siguiendo patrones de Kaizen
-echo "   📄 Generando build.gradle..."
+echo "🏗️ === PASO 1: Configurar Gradle con Plugin Clean Architecture ==="
+echo "� Creando build.gradle..."
 cat > build.gradle << 'EOF'
 plugins {
-    id 'java'
-    id 'application'
-    id 'org.springframework.boot' version '2.7.0'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "co.com.bancolombia.cleanArchitecture" version "3.23.0"
 }
+EOF
 
-group = 'com.bancolombia'
-version = '1.0.0'
-sourceCompatibility = '17'
-
-repositories {
-    mavenCentral()
+echo "� Creando settings.gradle..."
+cat > settings.gradle << 'EOF'
+pluginManagement {
+    repositories{
+        maven { url "https://artifactory.apps.bancolombia.com:443/maven-bancolombia/" }
+    }
 }
+EOF
 
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'junit:junit:4.13.2'
+echo "   ✅ Archivos de configuración creados"
+echo ""
+
+echo "🏗️ === PASO 2: Inicializar Gradle Wrapper ==="
+if [ -n "${GRADLE_HOME:-}" ]; then
+    echo "🔧 Ejecutando: gradle wrapper --gradle-version 8.8"
+    gradle wrapper --gradle-version 8.8 -Dorg.gradle.java.home="$JAVA_HOME"
+    echo "   ✅ Gradle wrapper inicializado"
+else
+    echo "   ❌ ERROR: GRADLE_HOME no está configurado"
+    echo "failed" > "$RESULTS_DIR/scaffold_status"
+    exit 1
+fi
+echo ""
+
+echo "🏗️ === PASO 3: Ejecutar Scaffolding Clean Architecture ==="
+echo "🔧 Ejecutando: ./gradlew ca"
+echo "   Parámetros:"
+echo "      --package=$PACKAGE"
+echo "      --type=$TYPE"
+echo "      --name=$PROJECT_NAME"
+echo "      --lombok=$LOMBOK"
+echo "      --metrics=$METRICS"
+echo "      --mutation=$MUTATION"
+echo "      --javaVersion=$JAVA_VERSION"
+
+./gradlew ca \
+    --package="$PACKAGE" \
+    --type="$TYPE" \
+    --name="$PROJECT_NAME" \
+    --lombok="$LOMBOK" \
+    --metrics="$METRICS" \
+    --mutation="$MUTATION" \
+    --javaVersion="$JAVA_VERSION" \
+    -Dorg.gradle.java.home="$JAVA_HOME"
+
+echo "   ✅ Scaffolding completado"
+echo ""
+
+echo "🏗️ === PASO 4: Configurar Repositorios Bancolombia ==="
+echo "� Actualizando main.gradle para usar Artifactory..."
+if [ -f main.gradle ]; then
+    sed -i -e '/mavenLocal()/d' \
+        -e '/maven { url/d' \
+        -e 's/mavenCentral()/maven { url "https:\/\/artifactory.apps.bancolombia.com\/maven-bancolombia" }/g' \
+        main.gradle
+    echo "   ✅ main.gradle actualizado"
+else
+    echo "   ⚠️ main.gradle no encontrado (puede ser normal)"
+fi
+
+echo "🔧 Actualizando settings.gradle para usar Artifactory..."
+if [ -f settings.gradle ]; then
+    sed -i -e '/\/\/mavenLocal()/d' \
+        -e '/\/\/maven { url/d' \
+        -e 's/gradlePluginPortal()/maven { url "https:\/\/artifactory.apps.bancolombia.com\/maven-bancolombia" }/g' \
+        settings.gradle
+    echo "   ✅ settings.gradle actualizado"
+fi
+echo ""
+
+# Generación de modelos (si se especifican)
+if [ -n "${MODELS:-}" ]; then
+    echo "🏗️ === PASO 5: Generar Modelos ==="
+    IFS=',' read -ra MODEL_ARRAY <<< "$MODELS"
+    for model in "${MODEL_ARRAY[@]}"; do
+        echo "📦 Generando modelo: $model"
+        ./gradlew gm --name "$model" -Dorg.gradle.java.home="$JAVA_HOME"
+        echo "   ✅ Modelo $model generado"
+    done
+    echo ""
+fi
+
+# Generación de casos de uso (si se especifican)
+if [ -n "${USE_CASES:-}" ]; then
+    echo "🏗️ === PASO 6: Generar Casos de Uso ==="
+    IFS=',' read -ra UC_ARRAY <<< "$USE_CASES"
+    for uc in "${UC_ARRAY[@]}"; do
+        echo "🎯 Generando caso de uso: $uc"
+        ./gradlew guc --name "$uc" -Dorg.gradle.java.home="$JAVA_HOME"
+        echo "   ✅ Caso de uso $uc generado"
+    done
+    echo ""
+fi
+
+# Generación de entry points
+if [ -n "${ENTRY_POINTS:-}" ]; then
+    echo "🏗️ === PASO 7: Generar Entry Points ==="
+    echo "$ENTRY_POINTS" | jq -c '.[]' 2>/dev/null | while read -r ep; do
+        nameep=$(echo "$ep" | jq -r '.EntryPoint')
+        echo "🚪 Generando entry point: $nameep"
+        
+        # Construir parámetros dinámicamente
+        params=""
+        for key in $(echo "$ep" | jq -r 'del(.EntryPoint) | keys[]'); do
+            value=$(echo "$ep" | jq -r ".$key")
+            params="$params --$key=$value"
+        done
+        
+        ./gradlew gep --type "$nameep" $params -Dorg.gradle.java.home="$JAVA_HOME"
+        echo "   ✅ Entry point $nameep generado"
+    done
+    echo ""
+fi
+
+# Generación de driven adapters
+if [ -n "${DRIVEN_ADAPTERS:-}" ]; then
+    echo "🏗️ === PASO 8: Generar Driven Adapters ==="
+    echo "$DRIVEN_ADAPTERS" | jq -c '.[]' 2>/dev/null | while read -r da; do
+        nameda=$(echo "$da" | jq -r '.DrivenAdapter')
+        echo "🔌 Generando driven adapter: $nameda"
+        
+        # Construir parámetros dinámicamente
+        params=""
+        for key in $(echo "$da" | jq -r 'del(.DrivenAdapter) | keys[]'); do
+            value=$(echo "$da" | jq -r ".$key")
+            params="$params --$key=$value"
+        done
+        
+        ./gradlew gda --type "$nameda" $params -Dorg.gradle.java.home="$JAVA_HOME"
+        echo "   ✅ Driven adapter $nameda generado"
+    done
+    echo ""
+fi
+
+echo "🏗️ === PASO 9: Configurar Archivos de Deployment ==="
+echo "📦 Creando directorio deployment..."
+mkdir -p deployment/k8s
+
+# Copiar assets desde la imagen (deben estar incluidos)
+if [ -d "/assets" ]; then
+    echo "📂 Copiando assets de Bancolombia..."
+    cp /assets/azure_build.yaml deployment/ 2>/dev/null || echo "   ⚠️ azure_build.yaml no disponible"
+    cp /assets/Dockerfile deployment/ 2>/dev/null || echo "   ⚠️ Dockerfile no disponible"
+    cp /assets/k8s/*.yaml deployment/k8s/ 2>/dev/null || echo "   ⚠️ k8s manifests no disponibles"
+    cp /assets/logback.xml applications/app-service/src/main/resources/ 2>/dev/null || echo "   ⚠️ logback.xml no disponible"
+    echo "   ✅ Assets copiados"
+else
+    echo "   ⚠️ Directorio /assets no encontrado en la imagen"
+fi
+echo ""
+
+echo "🏗️ === PASO 10: Actualizar Proyecto ==="
+echo "🔄 Ejecutando: ./gradlew u"
+./gradlew u -Dorg.gradle.java.home="$JAVA_HOME" || echo "   ⚠️ Update task no disponible (puede ser normal)"
+echo ""
+
+echo "🏗️ === PASO 11: Validar Estructura Generada ==="
+REQUIRED_DIRS=(
+    "applications"
+    "domain/model"
+    "domain/usecase"
+    "infrastructure"
+    "deployment"
+)
+
+ALL_VALID=true
+for dir in "${REQUIRED_DIRS[@]}"; do
+    if [ -d "$dir" ]; then
+        echo "   ✅ $dir"
+    else
+        echo "   ❌ $dir FALTA"
+        ALL_VALID=false
+    fi
+done
+echo ""
+
+# Generar reporte final
+if $ALL_VALID; then
+    echo "success" > "$RESULTS_DIR/scaffold_status"
+    echo "🎉 ═══════════════════════════════════════════════════════════════"
+    echo "🎉  SCAFFOLDING COMPLETADO EXITOSAMENTE"
+    echo "🎉 ═══════════════════════════════════════════════════════════════"
+    
+    # Generar métricas
+    FILE_COUNT=$(find . -type f 2>/dev/null | wc -l)
+    DIR_COUNT=$(find . -type d 2>/dev/null | wc -l)
+    
+    cat > "$RESULTS_DIR/report.json" << EOF
+{
+  "status": "success",
+  "project_name": "$PROJECT_NAME",
+  "package": "$PACKAGE",
+  "type": "$TYPE",
+  "java_version": "$JAVA_VERSION",
+  "files_generated": $FILE_COUNT,
+  "directories_created": $DIR_COUNT,
+  "timestamp": "$(date -Iseconds)"
 }
-
-application {
+EOF
+    
+    echo "📊 Estadísticas:"
+    echo "   📁 Directorios: $DIR_COUNT"
+    echo "   📄 Archivos: $FILE_COUNT"
+    echo "   ⏰ Completado: $(date)"
+    
+    exit 0
+else
+    echo "failed" > "$RESULTS_DIR/scaffold_status"
+    echo "❌ ═══════════════════════════════════════════════════════════════"
+    echo "❌  VALIDACIÓN DE ESTRUCTURA FALLÓ"
+    echo "❌ ═══════════════════════════════════════════════════════════════"
+    exit 1
+fi
     mainClass = 'com.bancolombia.Application'
 }
 
