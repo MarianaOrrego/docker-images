@@ -148,6 +148,8 @@ fi
 # Generación de entry points
 if [ -n "${ENTRY_POINTS:-}" ]; then
     echo "🏗️ === PASO 7: Generar Entry Points ==="
+    # Disable pipefail temporarily for this pipe to avoid SIGPIPE errors
+    set +o pipefail
     echo "$ENTRY_POINTS" | jq -c '.[]' 2>/dev/null | while read -r ep; do
         nameep=$(echo "$ep" | jq -r '.EntryPoint')
         echo "🚪 Generando entry point: $nameep"
@@ -161,13 +163,16 @@ if [ -n "${ENTRY_POINTS:-}" ]; then
         
         ./gradlew gep --type "$nameep" $params
         echo "   ✅ Entry point $nameep generado"
-    done
+    done || true
+    set -o pipefail
     echo ""
 fi
 
 # Generación de driven adapters
 if [ -n "${DRIVEN_ADAPTERS:-}" ]; then
     echo "🏗️ === PASO 8: Generar Driven Adapters ==="
+    # Disable pipefail temporarily for this pipe to avoid SIGPIPE errors
+    set +o pipefail
     echo "$DRIVEN_ADAPTERS" | jq -c '.[]' 2>/dev/null | while read -r da; do
         nameda=$(echo "$da" | jq -r '.DrivenAdapter')
         echo "🔌 Generando driven adapter: $nameda"
@@ -181,7 +186,8 @@ if [ -n "${DRIVEN_ADAPTERS:-}" ]; then
         
         ./gradlew gda --type "$nameda" $params
         echo "   ✅ Driven adapter $nameda generado"
-    done
+    done || true
+    set -o pipefail
     echo ""
 fi
 
