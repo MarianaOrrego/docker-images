@@ -276,8 +276,12 @@ EOF
             echo "   ✅ Tarball creado: ${PROJECT_NAME}.tar.gz ($TARBALL_SIZE)"
             echo "   📂 Ubicación: $RESULTS_DIR/${PROJECT_NAME}.tar.gz"
             echo ""
-            echo "📦 Para descargar localmente:"
+            echo "📦 Para descargar localmente (tienes 5 minutos):"
+            echo "   POD_NAME=\$(kubectl get pods -n kaizen-template-testing -l job-name=\$JOB_NAME -o jsonpath='{.items[0].metadata.name}')"
             echo "   kubectl cp kaizen-template-testing/\$POD_NAME:/app/results/${PROJECT_NAME}.tar.gz ./${PROJECT_NAME}.tar.gz"
+            echo ""
+            echo "⏳ Manteniendo pod activo por 5 minutos para descarga..."
+            sleep 300
         else
             echo "   ⚠️ No se pudo crear el tarball"
         fi
