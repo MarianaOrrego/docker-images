@@ -499,6 +499,25 @@ EOF
 
 echo "   ✅ Reporte JSON generado para Kaizen dashboard"
 
+# Paso 6: Comprimir proyecto generado para descarga
+echo "📦 6. Comprimiendo proyecto generado..."
+cd "$WORKSPACE_DIR" || exit 1
+
+if [ -d "$PROJECT_NAME" ]; then
+    echo "📦 Creando tarball del proyecto: ${PROJECT_NAME}.tar.gz"
+    tar -czf "$RESULTS_DIR/${PROJECT_NAME}.tar.gz" "$PROJECT_NAME" 2>/dev/null
+    
+    if [ -f "$RESULTS_DIR/${PROJECT_NAME}.tar.gz" ]; then
+        TARBALL_SIZE=$(du -h "$RESULTS_DIR/${PROJECT_NAME}.tar.gz" | cut -f1)
+        echo "   ✅ Tarball creado: ${PROJECT_NAME}.tar.gz ($TARBALL_SIZE)"
+        echo "   📂 Ubicación: $RESULTS_DIR/${PROJECT_NAME}.tar.gz"
+    else
+        echo "   ⚠️ No se pudo crear el tarball"
+    fi
+else
+    echo "   ⚠️ Directorio del proyecto no encontrado: $PROJECT_NAME"
+fi
+
 # Mostrar resumen final
 echo ""
 echo "🎯 === RESUMEN FINAL KAIZEN ==="
@@ -512,6 +531,11 @@ echo "📊 Archivos REALES generados: $ACTUAL_FILES"
 echo "📁 Directorios REALES creados: $ACTUAL_DIRS"
 echo "🔧 Modo de ejecución: HÍBRIDO (estructura real + tests simulados)"
 echo ""
+if [ -f "$RESULTS_DIR/${PROJECT_NAME}.tar.gz" ]; then
+    echo "📦 Tarball disponible para descarga:"
+    echo "   kubectl cp kaizen-template-testing/\$POD_NAME:/app/results/${PROJECT_NAME}.tar.gz ./${PROJECT_NAME}.tar.gz"
+    echo ""
+fi
 echo "🎌 KAIZEN SOFTWARE TEMPLATE TEST COMPLETADO EXITOSAMENTE 🎌"
 echo "⏰ Finalizado: $(date)"
 echo "🕐 Duración: $(($(date +%s) - ${TEST_ID})) segundos"
