@@ -24,11 +24,11 @@ echo ""
 echo "📋 === CONFIGURACIÓN DEL PROYECTO ==="
 echo "📦 Project Name: $PROJECT_NAME"
 echo "📦 Package: $PACKAGE"
-echo "� Type: $TYPE"
+echo "  Type: $TYPE"
 echo "📦 Java Version: $JAVA_VERSION"
-echo "� Lombok: $LOMBOK"
-echo "� Metrics: $METRICS"
-echo "� Mutation: $MUTATION"
+echo "  Lombok: $LOMBOK"
+echo "  Metrics: $METRICS"
+echo "  Mutation: $MUTATION"
 echo ""
 
 echo "🖥️ === ENTORNO DE EJECUCIÓN ==="
@@ -110,7 +110,7 @@ if [ -f main.gradle ]; then
     # No modificar - dejar mavenCentral() como está
     echo "   ✅ main.gradle usa repositorios públicos por defecto"
 else
-    echo "   ⚠️ main.gradle no encontrado (puede ser normal)"
+    echo "   ⚠️ main.gradle no encontrado"
 fi
 
 echo "🔧 Actualizando settings.gradle..."
@@ -299,7 +299,6 @@ else
     exit 1
 fi
     mainClass = 'com.bancolombia.Application'
-}
 
 tasks.named('test') {
     useJUnitPlatform()
@@ -317,8 +316,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Application {
     public static void main(String[] args) {
-        System.out.println("🎌 Kaizen Java Clean Architecture Template - Generated Successfully");
-        System.out.println("🏢 Bancolombia Internal Developer Portal");
+        System.out.println("Kaizen Java Clean Architecture Template - Generated Successfully");
+        System.out.println("Bancolombia Internal Developer Portal");
         SpringApplication.run(Application.class, args);
     }
 }
@@ -410,14 +409,14 @@ src/
 4. **CMDB**: Registrar aplicación y AppCode
 EOF
 
-echo "   ✅ Estructura de proyecto Kaizen creada (REAL)"
+echo "   ✅ Estructura de proyecto Kaizen creada"
 echo "   📊 Verificando archivos generados:"
 find . -type f | sort | sed 's/^/      /'
 
 echo "success" > "$RESULTS_DIR/project_generation"
 
-# Paso 3: Validación REAL de estructura
-echo "🔍 3. [REAL] Validando estructura de Clean Architecture..."
+# Paso 3: Validación de estructura
+echo "🔍 3. Validando estructura de Clean Architecture..."
 VALIDATION_CHECKS=(
     "src/main/java"
     "src/test/java"
@@ -448,81 +447,3 @@ else
     echo "   ❌ Validación de estructura falló"
     echo "failed" > "$RESULTS_DIR/structure_validation"
 fi
-
-# Paso 4: Pruebas (simuladas por ahora para rapidez en sandbox)
-echo "🧪 4. [SIMULADO] Ejecutando pruebas de calidad..."
-
-echo "   🔨 [SIMULADO] Gradle build..."
-sleep 1
-echo "   ✅ Build exitoso - Compatible con DevOps Framework"
-BUILD_STATUS="simulated_success"
-
-echo "   🧪 [SIMULADO] Tests unitarios..."
-sleep 1
-echo "   ✅ Tests passed: 2/2 - Cumple estándares Bancolombia"
-TEST_STATUS="simulated_success"
-
-echo "   📊 [SIMULADO] Análisis de calidad con OPEX..."
-sleep 1
-echo "   ✅ Quality gates passed - OPEX compliance"
-
-echo "success" > "$RESULTS_DIR/quality_tests"
-
-# Paso 5: Generar reporte REAL para Kaizen dashboard
-echo "📊 5. [REAL] Generando reporte de resultados para Kaizen..."
-
-ACTUAL_FILES=$(find . -type f | wc -l)
-ACTUAL_DIRS=$(find . -type d | wc -l)
-
-cat > "$RESULTS_DIR/kaizen_test_summary.json" << EOF
-{
-  "kaizen": {
-    "portal": "Bancolombia Internal Developer Portal",
-    "component": "Software Templates",
-    "template_type": "java-clean-architecture",
-    "version": "2.1.0",
-    "execution_mode": "hybrid"
-  },
-  "test_execution": {
-    "test_id": "$TEST_ID",
-    "project_name": "$PROJECT_NAME",
-    "template_type": "java-clean-architecture",
-    "user_email": "$USER_EMAIL",
-    "timestamp": "$(date -Iseconds)",
-    "duration_seconds": $(($(date +%s) - ${TEST_ID})),
-    "environment": "sandbox-eks",
-    "real_validation": $REAL_VALIDATION
-  },
-  "results": {
-    "scaffold_download": "$(cat $RESULTS_DIR/scaffold_download)",
-    "project_generation": "$(cat $RESULTS_DIR/project_generation)",
-    "structure_validation": "$(cat $RESULTS_DIR/structure_validation)",
-    "quality_tests": "$(cat $RESULTS_DIR/quality_tests)",
-    "build_status": "$BUILD_STATUS",
-    "test_status": "$TEST_STATUS",
-    "overall_status": "success"
-  },
-  "artifacts": {
-    "project_files": $ACTUAL_FILES,
-    "directories": $ACTUAL_DIRS,
-    "build_file": "build.gradle",
-    "main_class": "src/main/java/com/bancolombia/Application.java",
-    "test_class": "src/test/java/com/bancolombia/ApplicationTest.java",
-    "readme": "README.md"
-  },
-  "compliance": {
-    "clean_architecture": true,
-    "bancolombia_standards": true,
-    "devops_framework_ready": true,
-    "opex_compatible": true,
-    "real_structure_validation": true
-  },
-  "infrastructure": {
-    "kubernetes_job": true,
-    "aws_region": "${AWS_REGION:-us-east-2}",
-    "java_version": "$(java -version 2>&1 | head -1)"
-  }
-}
-EOF
-
-echo "   ✅ Reporte JSON generado para Kaizen dashboard"
