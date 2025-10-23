@@ -1,6 +1,7 @@
 # ═══════════════════════════════════════════════════════════════
 # KAIZEN - BANCOLOMBIA INTERNAL DEVELOPER PORTAL
-# Java Clean Architecture Scaffolding Image
+# Java Clean Architecture Scaffolding Image v2.1
+# Fixed: Auto-download with READY_FOR_DOWNLOAD signal
 # ═══════════════════════════════════════════════════════════════
 
 # Stage 1: Assets - Contiene los archivos de configuración de Bancolombia
