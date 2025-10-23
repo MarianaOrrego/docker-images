@@ -288,11 +288,15 @@ EOF
             echo "📦 Archivo disponible: /app/results/final-test-download.tar.gz"
             echo "📊 Tamaño: $TARBALL_SIZE"
             echo ""
-            echo "✨ El sistema de descarga automática detectará este archivo"
-            echo "   y iniciará la descarga una vez que el Job se complete."
+            echo "🚨 SEÑAL PARA DESCARGA AUTOMÁTICA: READY_FOR_DOWNLOAD"
+            echo "⏳ Manteniendo pod activo por 2 minutos para descarga automática..."
             echo ""
-            echo "📋 Para descarga manual (si es necesario):"
-            echo "   kubectl cp kaizen-template-testing/\$POD_NAME:/app/results/final-test-download.tar.gz ./final-test-download.tar.gz"
+            echo "📋 Para descarga manual inmediata:"
+            echo "   kubectl cp kaizen-template-testing/\$(kubectl get pods -n kaizen-template-testing -l job-name=\$JOB_NAME -o jsonpath='{.items[0].metadata.name}'):/app/results/final-test-download.tar.gz ./final-test-download.tar.gz"
+            echo ""
+            
+            # Sleep corto para permitir descarga automática
+            sleep 120
             
         else
             echo "   ⚠️ No se pudo crear el tarball"
